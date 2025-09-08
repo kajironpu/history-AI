@@ -60,7 +60,7 @@ let currentQuestionIndex = 0;
 let correctCount = 0;
 let answeredCount = 0;
 
-// 配列をランダムに並び替える
+// 配列ランダム化
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -69,7 +69,7 @@ function shuffle(array) {
     return array;
 }
 
-// CSVを読み込む
+// CSV読み込み
 async function loadQuestionsFromCSV() {
     const response = await fetch('questions.csv');
     let text = await response.text();
@@ -95,10 +95,10 @@ async function loadQuestionsFromCSV() {
         }));
 }
 
-// ページ読み込み時
+// ページ読み込み
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await loadQuestionsFromCSV();
-    allQuestions = shuffle(allQuestions); // 全問題ランダム順
+    allQuestions = shuffle(allQuestions);
     populateEraSelect();
     questions = [...allQuestions];
     document.getElementById('total-questions').textContent = questions.length;
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCounters();
 });
 
-// 時代ドロップダウン作成
+// 時代選択肢生成
 function populateEraSelect() {
     const select = document.getElementById('era-select');
     const eras = [...new Set(allQuestions.map(q => q.era))];
@@ -118,13 +118,12 @@ function populateEraSelect() {
     });
 }
 
-// 選んだ時代でフィルター（ランダム順）
+// 時代でフィルター（ランダム順）
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
     if (selectedEra === 'all') questions = [...allQuestions];
     else questions = allQuestions.filter(q => q.era === selectedEra);
-
-    questions = shuffle(questions); // ランダム順に
+    questions = shuffle(questions);
     currentQuestionIndex = 0;
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
@@ -139,10 +138,8 @@ function displayCurrentQuestion() {
         document.getElementById('next-btn').style.display = 'none';
         return;
     }
-    const questionElement = document.getElementById('question-text');
     const currentQuestion = questions[currentQuestionIndex];
-    questionElement.textContent = `[${currentQuestion.era}] ${currentQuestion.question}`;
-    
+    document.getElementById('question-text').textContent = `[${currentQuestion.era}] ${currentQuestion.question}`;
     document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
     document.getElementById('submit-btn').style.display = 'inline-block';
@@ -157,7 +154,7 @@ function updateCounters() {
     document.getElementById('answered-count').textContent = answeredCount;
 }
 
-// 回答送信（丸括弧・空白・全角半角・大小文字を無視）
+// 回答送信（あいまい判定）
 function submitAnswer() {
     const userAnswer = document.getElementById('user-answer').value.trim();
     const currentQuestion = questions[currentQuestionIndex];
@@ -168,17 +165,21 @@ function submitAnswer() {
     submitBtn.innerHTML = '採点中<span class="loading"></span>';
 
     try {
-        // 正規化関数
         const normalize = str => str
             .replace(/[（）\s]/g, '')   // 丸括弧・空白削除
-            .normalize('NFKC')          // 全角→半角変換
+            .normalize('NFKC')          // 全角→半角
             .toLowerCase();             // 小文字化
 
-        const isCorrect = normalize(userAnswer) === normalize(currentQuestion.answer);
+        const userNorm = normalize(userAnswer);
+        const answerNorm = normalize(currentQuestion.answer);
+
+        // 部分一致であいまい正解
+        const isCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
 
         resultDiv.innerHTML = isCorrect 
             ? '✔ 正解です！' 
-            : `❌ 不正解です。あなたの回答は「${userAnswer}」でした。正しい答えは「${currentQuestion.answer}」です。`;
+            : `❌ 不正解です。あなたの回答「${userAnswer}」は、正しい答え「${currentQuestion.answer}」とは少し表記が違います。`;
+
         resultDiv.className = 'result ' + (isCorrect ? 'correct' : 'incorrect');
         resultDiv.style.display = 'block';
 
