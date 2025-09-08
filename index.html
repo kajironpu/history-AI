@@ -60,29 +60,48 @@ let currentQuestionIndex = 0;
 let correctCount = 0;
 let answeredCount = 0;
 
+// 配列をランダムに並び替える
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 // CSVを読み込む
 async function loadQuestionsFromCSV() {
     const response = await fetch('questions.csv');
-    const text = await response.text();
+    let text = await response.text();
+    text = text.replace(/^\uFEFF/, ''); // BOM除去
     const lines = text.trim().split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(',').map(h => h.trim());
+    
     const eraIndex = headers.indexOf('時代');
     const questionIndex = headers.indexOf('問題');
     const answerIndex = headers.indexOf('答え');
+    
+    if (eraIndex === -1 || questionIndex === -1 || answerIndex === -1) {
+        throw new Error('CSVのヘッダーが不正です。時代,問題,答え の列が必要です。');
+    }
 
-    return lines.slice(1).map(line => {
-        const cols = line.split(',');
-        return {
-            era: cols[eraIndex].trim(),
-            question: cols[questionIndex].trim(),
-            answer: cols[answerIndex].trim()
-        };
-    });
+    return lines.slice(1)
+        .map(line => line.split(',').map(c => c.trim()))
+        .filter(cols => cols.length > Math.max(eraIndex, questionIndex, answerIndex))
+        .map(cols => ({
+            era: cols[eraIndex],
+            question: cols[questionIndex],
+            answer: cols[answerIndex]
+        }));
 }
 
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await loadQuestionsFromCSV();
+    
+    // 全問題をランダムにシャッフル
+    allQuestions = shuffle(allQuestions);
+
     populateEraSelect();
     questions = [...allQuestions];
     document.getElementById('total-questions').textContent = questions.length;
@@ -102,14 +121,16 @@ function populateEraSelect() {
     });
 }
 
-// 選んだ時代でフィルター
+// 選んだ時代でフィルター（かつランダム順）
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
     if (selectedEra === 'all') questions = [...allQuestions];
     else questions = allQuestions.filter(q => q.era === selectedEra);
+
+    questions = shuffle(questions); // ランダム順に
+
     currentQuestionIndex = 0;
-    correctCount = 0;
-    answeredCount = 0;
+    // 正解数・回答数は累積のまま
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
     updateCounters();
@@ -198,12 +219,12 @@ function nextQuestion() {
 // 最終結果
 function showFinalResult() {
     const container = document.querySelector('.container');
-    const percentage = Math.round((correctCount / questions.length) * 100);
+    const percentage = Math.round((correctCount / answeredCount) * 100);
     
     container.innerHTML = `
         <h1>🎉 クイズ完了！</h1>
         <div class="score" style="font-size:2em; margin:30px 0;">
-            最終スコア: ${correctCount} / ${questions.length} (${percentage}%)
+            正解数: ${correctCount} / ${answeredCount} (${percentage}%)
         </div>
         <div style="font-size:1.2em; margin:20px 0;">
             ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
