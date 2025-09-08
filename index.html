@@ -73,17 +73,12 @@ function shuffle(array) {
 async function loadQuestionsFromCSV() {
     const response = await fetch('questions.csv');
     let text = await response.text();
-    text = text.replace(/^\uFEFF/, ''); // BOM除去
+    text = text.replace(/^\uFEFF/, '');
     const lines = text.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
-    
     const eraIndex = headers.indexOf('時代');
     const questionIndex = headers.indexOf('問題');
     const answerIndex = headers.indexOf('答え');
-    
-    if (eraIndex === -1 || questionIndex === -1 || answerIndex === -1) {
-        throw new Error('CSVのヘッダーが不正です。時代,問題,答え の列が必要です。');
-    }
 
     return lines.slice(1)
         .map(line => line.split(',').map(c => c.trim()))
@@ -118,7 +113,7 @@ function populateEraSelect() {
     });
 }
 
-// 時代でフィルター（ランダム順）
+// 時代フィルター
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
     if (selectedEra === 'all') questions = [...allQuestions];
@@ -154,8 +149,8 @@ function updateCounters() {
     document.getElementById('answered-count').textContent = answeredCount;
 }
 
-// 回答送信（あいまい判定）
-function submitAnswer() {
+// 回答送信（あいまい判定＋AI解説）
+async function submitAnswer() {
     const userAnswer = document.getElementById('user-answer').value.trim();
     const currentQuestion = questions[currentQuestionIndex];
     const submitBtn = document.getElementById('submit-btn');
@@ -165,33 +160,38 @@ function submitAnswer() {
     submitBtn.innerHTML = '採点中<span class="loading"></span>';
 
     try {
-        const normalize = str => str
-            .replace(/[（）\s]/g, '')   // 丸括弧・空白削除
-            .normalize('NFKC')          // 全角→半角
-            .toLowerCase();             // 小文字化
-
+        const normalize = str => str.replace(/[（）\s]/g,'').normalize('NFKC').toLowerCase();
         const userNorm = normalize(userAnswer);
         const answerNorm = normalize(currentQuestion.answer);
+        const isPartialCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
 
-        // 部分一致であいまい正解
-        const isCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
+        let advice = '';
+        if(isPartialCorrect){
+            advice = '✔ 正解です！';
+        } else {
+            // AI採点APIに送信
+            const response = await fetch('/api/grade-ai', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userAnswer, currentQuestion })
+            });
+            const result = await response.json();
+            advice = result.advice || `❌ 不正解です。正しい答え: ${currentQuestion.answer}`;
+        }
 
-        resultDiv.innerHTML = isCorrect 
-            ? '✔ 正解です！' 
-            : `❌ 不正解です。あなたの回答「${userAnswer}」は、正しい答え「${currentQuestion.answer}」とは少し表記が違います。`;
-
-        resultDiv.className = 'result ' + (isCorrect ? 'correct' : 'incorrect');
+        resultDiv.innerHTML = advice;
+        resultDiv.className = 'result ' + (isPartialCorrect ? 'correct' : 'incorrect');
         resultDiv.style.display = 'block';
 
-        if (isCorrect) correctCount++;
+        if(isPartialCorrect) correctCount++;
         answeredCount++;
         updateCounters();
 
         submitBtn.style.display = 'none';
         document.getElementById('next-btn').style.display = 'inline-block';
-    } catch(error) {
-        console.error(error);
-        resultDiv.innerHTML = `エラーが発生しました: ${error.message}`;
+    } catch(e){
+        console.error(e);
+        resultDiv.innerHTML = `エラーが発生しました: ${e.message}`;
         resultDiv.className = 'result incorrect';
         resultDiv.style.display = 'block';
     } finally {
@@ -203,7 +203,7 @@ function submitAnswer() {
 // 次の問題
 function nextQuestion() {
     currentQuestionIndex++;
-    if (currentQuestionIndex >= questions.length) {
+    if(currentQuestionIndex >= questions.length){
         showFinalResult();
     } else {
         displayCurrentQuestion();
@@ -231,10 +231,10 @@ function showFinalResult() {
 }
 
 // Enterキーで送信
-document.getElementById('user-answer').addEventListener('keypress', e => {
-    if (e.key === 'Enter') {
-        if (document.getElementById('submit-btn').style.display !== 'none') submitAnswer();
-        else if (document.getElementById('next-btn').style.display !== 'none') nextQuestion();
+document.getElementById('user-answer').addEventListener('keypress', e=>{
+    if(e.key==='Enter'){
+        if(document.getElementById('submit-btn').style.display!=='none') submitAnswer();
+        else if(document.getElementById('next-btn').style.display!=='none') nextQuestion();
     }
 });
 </script>
