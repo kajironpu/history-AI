@@ -171,10 +171,16 @@ async function submitAnswer() {
     submitBtn.innerHTML = '採点中<span class="loading"></span>';
 
     try {
-        const normalize = str => str.replace(/[（）\s]/g,'').normalize('NFKC').toLowerCase();
+        const normalize = str => str.replace(/[（）()【】［］「」『』\s]/g,'').normalize('NFKC').toLowerCase();
         const userNorm = normalize(userAnswer);
         const answerNorm = normalize(currentQuestion.answer);
-        const isPartialCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
+        
+        // より柔軟な判定：部分一致、完全一致、逆方向の部分一致を確認
+        const isExactMatch = userNorm === answerNorm;
+        const isPartialMatch = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
+        const isSubstantialMatch = userNorm.length >= 2 && (answerNorm.includes(userNorm) || userNorm.includes(answerNorm));
+        
+        const isPartialCorrect = isExactMatch || (isPartialMatch && isSubstantialMatch);
 
         let advice = '';
         // 正解・不正解に関わらずAI採点APIに送信
