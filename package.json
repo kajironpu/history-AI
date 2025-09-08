@@ -1,5 +1,11 @@
 {
   "name": "history-ai",
   "version": "1.0.0",
-  "description": "AI-powered history quiz application"
+  "description": "AI-powered history quiz application",
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "@azure/ai-generative": "^1.0.0-beta.5"
+  }
 }
