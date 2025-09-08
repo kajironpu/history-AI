@@ -190,7 +190,9 @@ async function submitAnswer() {
             body: JSON.stringify({ 
                 userAnswer, 
                 currentQuestion,
-                isCorrect: isPartialCorrect // 正解かどうかをAPIに伝える
+                isCorrect: isPartialCorrect,
+                normalizedUserAnswer: userNorm,
+                normalizedCorrectAnswer: answerNorm
             })
         });
         const result = await response.json();
