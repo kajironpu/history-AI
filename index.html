@@ -93,17 +93,18 @@ async function loadQuestionsFromCSV() {
 // ページ読み込み
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await loadQuestionsFromCSV();
-    questions = [...allQuestions]; // 初期は全問題
-    populateEraSelect();           // CSV順で表示
+    allQuestions = shuffle(allQuestions);
+    populateEraSelect();
+    questions = [...allQuestions];
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
     updateCounters();
 });
 
-// 時代選択肢生成（CSV順）
+// 時代選択肢生成
 function populateEraSelect() {
     const select = document.getElementById('era-select');
-    const eras = [...new Set(allQuestions.map(q => q.era))]; // CSV順のまま
+    const eras = [...new Set(allQuestions.map(q => q.era))];
     eras.forEach(era => {
         const option = document.createElement('option');
         option.value = era;
@@ -112,12 +113,12 @@ function populateEraSelect() {
     });
 }
 
-// 時代フィルター（問題のみランダム）
+// 時代フィルター
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
-    if(selectedEra==='all') questions = [...allQuestions];
-    else questions = allQuestions.filter(q=>q.era===selectedEra);
-    shuffle(questions); // 問題順はランダム
+    if (selectedEra === 'all') questions = [...allQuestions];
+    else questions = allQuestions.filter(q => q.era === selectedEra);
+    questions = shuffle(questions);
     currentQuestionIndex = 0;
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
@@ -126,24 +127,24 @@ function filterByEra() {
 
 // 現在の問題表示
 function displayCurrentQuestion() {
-    if(questions.length===0){
+    if(questions.length === 0){
         document.getElementById('question-text').textContent = 'この時代の問題はありません。';
-        document.getElementById('submit-btn').style.display='none';
-        document.getElementById('next-btn').style.display='none';
+        document.getElementById('submit-btn').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
         return;
     }
     const currentQuestion = questions[currentQuestionIndex];
     document.getElementById('question-text').textContent = `[${currentQuestion.era}] ${currentQuestion.question}`;
-    document.getElementById('user-answer').value='';
+    document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
-    document.getElementById('submit-btn').style.display='inline-block';
-    document.getElementById('next-btn').style.display='none';
-    document.getElementById('result').style.display='none';
+    document.getElementById('submit-btn').style.display = 'inline-block';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
 }
 
 // カウンター更新
 function updateCounters() {
-    document.getElementById('current-question-num').textContent = questions.length===0?0:currentQuestionIndex+1;
+    document.getElementById('current-question-num').textContent = questions.length === 0 ? 0 : currentQuestionIndex + 1;
     document.getElementById('correct-count').textContent = correctCount;
     document.getElementById('answered-count').textContent = answeredCount;
 }
@@ -155,21 +156,87 @@ async function submitAnswer() {
     const submitBtn = document.getElementById('submit-btn');
     const resultDiv = document.getElementById('result');
 
-    submitBtn.disabled=true;
-    submitBtn.innerHTML='採点中<span class="loading"></span>';
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '採点中<span class="loading"></span>';
 
     try {
-        const normalize = str=>str.replace(/[（）\s]/g,'').normalize('NFKC').toLowerCase();
-        const userNorm=normalize(userAnswer);
-        const answerNorm=normalize(currentQuestion.answer);
+        const normalize = str => str.replace(/[（）\s]/g,'').normalize('NFKC').toLowerCase();
+        const userNorm = normalize(userAnswer);
+        const answerNorm = normalize(currentQuestion.answer);
         const isPartialCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
 
-        let advice='';
+        let advice = '';
         if(isPartialCorrect){
-            advice='✔ 正解です！';
+            advice = '✔ 正解です！';
         } else {
             // AI採点APIに送信
-            const response = await fetch('/api/grade-ai',{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ user
+            const response = await fetch('/api/grade-ai', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userAnswer, currentQuestion })
+            });
+            const result = await response.json();
+            advice = result.advice || `❌ 不正解です。正しい答え: ${currentQuestion.answer}`;
+        }
+
+        resultDiv.innerHTML = advice;
+        resultDiv.className = 'result ' + (isPartialCorrect ? 'correct' : 'incorrect');
+        resultDiv.style.display = 'block';
+
+        if(isPartialCorrect) correctCount++;
+        answeredCount++;
+        updateCounters();
+
+        submitBtn.style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-block';
+    } catch(e){
+        console.error(e);
+        resultDiv.innerHTML = `エラーが発生しました: ${e.message}`;
+        resultDiv.className = 'result incorrect';
+        resultDiv.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '回答する';
+    }
+}
+
+// 次の問題
+function nextQuestion() {
+    currentQuestionIndex++;
+    if(currentQuestionIndex >= questions.length){
+        showFinalResult();
+    } else {
+        displayCurrentQuestion();
+        updateCounters();
+    }
+}
+
+// 最終結果
+function showFinalResult() {
+    const container = document.querySelector('.container');
+    const percentage = Math.round((correctCount / answeredCount) * 100);
+    
+    container.innerHTML = `
+        <h1>🎉 クイズ完了！</h1>
+        <div class="score" style="font-size:2em; margin:30px 0;">
+            正解数: ${correctCount} / ${answeredCount} (${percentage}%)
+        </div>
+        <div style="font-size:1.2em; margin:20px 0;">
+            ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
+              percentage >= 60 ? 'よくできました！📚' : 
+              '復習して再挑戦してみましょう！💪'}
+        </div>
+        <button class="btn" onclick="location.reload()">もう一度挑戦</button>
+    `;
+}
+
+// Enterキーで送信
+document.getElementById('user-answer').addEventListener('keypress', e=>{
+    if(e.key==='Enter'){
+        if(document.getElementById('submit-btn').style.display!=='none') submitAnswer();
+        else if(document.getElementById('next-btn').style.display!=='none') nextQuestion();
+    }
+});
+</script>
+</body>
+</html>
