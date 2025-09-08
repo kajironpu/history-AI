@@ -2,16 +2,8 @@
   "name": "history-ai",
   "version": "1.0.0",
   "description": "AI-powered history quiz application",
-  "main": "index.html",
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build needed for static site'"
-  },
   "dependencies": {
-    "@azure-rest/ai-inference": "^1.0.0",
+    "@azure-rest/ai-inference": "1.0.0-beta.6",
     "@azure/core-auth": "^1.7.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
