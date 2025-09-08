@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歴史クイズAI</title>
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:;">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .quiz-section {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #555;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .result.correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.incorrect {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .score {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .question-counter {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ 歴史クイズAI</h1>
+        
+        <div class="question-counter">
+            <span id="current-question-num">1</span> / <span id="total-questions">10</span>
+        </div>
+        
+        <div class="score">
+            正解数: <span id="correct-count">0</span> / <span id="answered-count">0</span>
+        </div>
+
+        <div class="quiz-section">
+            <div class="question" id="question-text">
+                問題を読み込み中...
+            </div>
+            
+            <input type="text" id="user-answer" class="answer-input" placeholder="答えを入力してください" />
+            
+            <button id="submit-btn" class="btn" onclick="submitAnswer()">回答する</button>
+            <button id="next-btn" class="btn" onclick="nextQuestion()" style="display: none;">次の問題</button>
+        </div>
+
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // 歴史問題のデータベース
+        const questions = [
+            { question: "鎌倉幕府を開いた武将は誰ですか？", answer: "源頼朝" },
+            { question: "室町幕府を開いた武将は誰ですか？", answer: "足利尊氏" },
+            { question: "江戸幕府を開いた武将は誰ですか？", answer: "徳川家康" },
+            { question: "平安京を建設した天皇は誰ですか？", answer: "桓武天皇" },
+            { question: "大化の改新が起こった年は西暦何年ですか？", answer: "645年" },
+            { question: "鎌倉幕府が成立した年は西暦何年ですか？", answer: "1192年" },
+            { question: "応仁の乱が始まった年は西暦何年ですか？", answer: "1467年" },
+            { question: "関ヶ原の戦いが行われた年は西暦何年ですか？", answer: "1600年" },
+            { question: "明治維新が始まった年は西暦何年ですか？", answer: "1868年" },
+            { question: "第二次世界大戦が終わった年は西暦何年ですか？", answer: "1945年" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let answeredCount = 0;
+
+        // ページ読み込み時に最初の問題を表示
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCurrentQuestion();
+            updateCounters();
+        });
+
+        // 現在の問題を表示
+        function displayCurrentQuestion() {
+            const questionElement = document.getElementById('question-text');
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            // 入力フィールドをクリア
+            document.getElementById('user-answer').value = '';
+            document.getElementById('user-answer').focus();
+            
+            // ボタンの状態をリセット
+            document.getElementById('submit-btn').style.display = 'inline-block';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+        }
+
+        // カウンターを更新
+        function updateCounters() {
+            document.getElementById('current-question-num').textContent = currentQuestionIndex + 1;
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('answered-count').textContent = answeredCount;
+        }
+
+        // 回答を送信
+        async function submitAnswer() {
+            const userAnswer = document.getElementById('user-answer').value.trim();
+            const currentQuestion = questions[currentQuestionIndex];
+            const submitBtn = document.getElementById('submit-btn');
+            const resultDiv = document.getElementById('result');
+
+            // ボタンを無効化してローディング表示
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'AI採点中<span class="loading"></span>';
+
+            try {
+                // APIエンドポイントを /api/grade-ai に変更
+                const response = await fetch('/api/grade-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userAnswer: userAnswer,
+                        currentQuestion: currentQuestion
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // 結果を表示
+                resultDiv.innerHTML = result.advice;
+                resultDiv.style.display = 'block';
+                
+                // 正解かどうかを判定（簡易的な判定）
+                const isCorrect = result.advice.includes('✔') || result.advice.includes('正解');
+                resultDiv.className = 'result ' + (isCorrect ? 'correct' : 'incorrect');
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+                
+                answeredCount++;
+                updateCounters();
+
+                // ボタンの表示を切り替え
+                submitBtn.style.display = 'none';
+                document.getElementById('next-btn').style.display = 'inline-block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `エラーが発生しました: ${error.message}<br>しばらく時間をおいてから再度お試しください。`;
+                resultDiv.className = 'result incorrect';
+                resultDiv.style.display = 'block';
+            } finally {
+                // ボタンを元に戻す
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '回答する';
+            }
+        }
+
+        // 次の問題に進む
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex >= questions.length) {
+                // クイズ終了
+                showFinalResult();
+            } else {
+                displayCurrentQuestion();
+                updateCounters();
+            }
+        }
+
+        // 最終結果を表示
+        function showFinalResult() {
+            const container = document.querySelector('.container');
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            
+            container.innerHTML = `
+                <h1>🎉 クイズ完了！</h1>
+                <div class="score" style="font-size: 2em; margin: 30px 0;">
+                    最終スコア: ${correctCount} / ${questions.length} (${percentage}%)
+                </div>
+                <div style="font-size: 1.2em; margin: 20px 0;">
+                    ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
+                      percentage >= 60 ? 'よくできました！📚' : 
+                      '復習して再挑戦してみましょう！💪'}
+                </div>
+                <button class="btn" onclick="location.reload()">もう一度挑戦</button>
+            `;
+        }
+
+        // Enterキーで回答送信
+        document.getElementById('user-answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const submitBtn = document.getElementById('submit-btn');
+                const nextBtn = document.getElementById('next-btn');
+                
+                if (submitBtn.style.display !== 'none') {
+                    submitAnswer();
+                } else if (nextBtn.style.display !== 'none') {
+                    nextQuestion();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

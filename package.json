@@ -1,16 +1,9 @@
 {
-  "name": "history-ai-quiz",
+  "name": "history-ai",
   "version": "1.0.0",
-  "description": "A web-based history quiz with AI grading.",
-  "main": "server.js",
   "type": "module",
   "dependencies": {
-    "@azure-rest/ai-inference": "latest",
-    "@azure/core-auth": "latest",
-    "express": "latest",
-    "dotenv": "latest"
-  },
-  "scripts": {
-    "start": "node server.js"
+    "@azure-rest/ai-inference": "^1.0.0",
+    "@azure/core-auth": "^1.7.2"
   }
 }

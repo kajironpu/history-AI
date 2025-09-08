@@ -1,3 +1,18 @@
-git add vercel.json
-git commit -m "Add vercel.json for Content Security Policy"
-git push origin main
+{
+  "functions": {
+    "api/grade-ai.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:"
+        }
+      ]
+    }
+  ]
+}
