@@ -177,16 +177,21 @@ async function submitAnswer() {
         const isPartialCorrect = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
 
         let advice = '';
+        // 正解・不正解に関わらずAI採点APIに送信
+        const response = await fetch('/api/grade-ai', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ 
+                userAnswer, 
+                currentQuestion,
+                isCorrect: isPartialCorrect // 正解かどうかをAPIに伝える
+            })
+        });
+        const result = await response.json();
+        
         if(isPartialCorrect){
-            advice = '✔ 正解です！';
+            advice = result.advice || '✔ 正解です！';
         } else {
-            // AI採点APIに送信
-            const response = await fetch('/api/grade-ai', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ userAnswer, currentQuestion })
-            });
-            const result = await response.json();
             advice = result.advice || `❌ 不正解です。正しい答え: ${currentQuestion.answer}`;
         }
 
