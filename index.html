@@ -1,36 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歴史クイズAI</title>
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:;">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
-        .container { background:white; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.1); padding:40px; max-width:800px; width:100%; text-align:center; }
-        h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
-        .quiz-section { margin-bottom:30px; }
-        .question { font-size:1.3em; color:#555; margin-bottom:20px; padding:20px; background:#f8f9fa; border-radius:10px; border-left:5px solid #667eea; }
-        .answer-input { width:100%; padding:15px; font-size:1.1em; border:2px solid #ddd; border-radius:10px; margin-bottom:20px; transition:border-color 0.3s; }
-        .answer-input:focus { outline:none; border-color:#667eea; }
-        .btn { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:15px 30px; font-size:1.1em; border-radius:25px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; margin:10px; }
-        .btn:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,0.2); }
-        .btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-        .result { margin-top:30px; padding:20px; border-radius:10px; text-align:left; line-height:1.6; display:none; }
-        .result.correct { background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
-        .result.incorrect { background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
-        .score { font-size:1.2em; margin-bottom:20px; color:#333; }
-        .loading { display:inline-block; width:20px; height:20px; border:3px solid #f3f3f3; border-top:3px solid #667eea; border-radius:50%; animation:spin 1s linear infinite; margin-left:10px; }
-        @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-        .question-counter { background:#667eea; color:white; padding:10px 20px; border-radius:20px; margin-bottom:20px; display:inline-block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>歴史クイズAI</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+.container { background:white; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.1); padding:40px; max-width:800px; width:100%; text-align:center; position:relative; }
+h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
+.quiz-section { margin-bottom:30px; }
+.question { font-size:1.3em; color:#555; margin-bottom:20px; padding:20px; background:#f8f9fa; border-radius:10px; border-left:5px solid #667eea; }
+.answer-input { width:100%; padding:15px; font-size:1.1em; border:2px solid #ddd; border-radius:10px; margin-bottom:20px; transition:border-color 0.3s; }
+.answer-input:focus { outline:none; border-color:#667eea; }
+.btn { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:15px 30px; font-size:1.1em; border-radius:25px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; margin:10px; }
+.btn:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,0.2); }
+.btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.result { margin-top:30px; padding:20px; border-radius:10px; text-align:left; line-height:1.6; display:none; }
+.result.correct { background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
+.result.incorrect { background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
+.score { font-size:1.2em; margin-bottom:20px; color:#333; }
+.loading { display:inline-block; width:20px; height:20px; border:3px solid #f3f3f3; border-top:3px solid #667eea; border-radius:50%; animation:spin 1s linear infinite; margin-left:10px; }
+@keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+.question-counter { background:#667eea; color:white; padding:10px 20px; border-radius:20px; margin-bottom:20px; display:inline-block; }
+#era-select { position:absolute; top:20px; right:20px; padding:8px 12px; border-radius:10px; border:1px solid #ddd; font-size:1em; }
+</style>
 </head>
 <body>
 <div class="container">
     <h1>🏛️ 歴史クイズAI</h1>
-    
+
+    <!-- 時代選択 -->
+    <select id="era-select" onchange="filterByEra()">
+        <option value="all">全ての時代</option>
+    </select>
+
     <div class="question-counter">
         <span id="current-question-num">1</span> / <span id="total-questions">0</span>
     </div>
@@ -50,6 +54,7 @@
 </div>
 
 <script>
+let allQuestions = [];
 let questions = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
@@ -61,29 +66,69 @@ async function loadQuestionsFromCSV() {
     const text = await response.text();
     const lines = text.trim().split('\n');
     const headers = lines[0].split(',');
+    const eraIndex = headers.indexOf('時代');
+    const questionIndex = headers.indexOf('問題');
+    const answerIndex = headers.indexOf('答え');
+
     return lines.slice(1).map(line => {
         const cols = line.split(',');
-        return { question: cols[0], answer: cols[1] };
+        return {
+            era: cols[eraIndex].trim(),
+            question: cols[questionIndex].trim(),
+            answer: cols[answerIndex].trim()
+        };
     });
 }
 
-// ページ読み込み時にCSVから問題を読み込む
+// ページ読み込み時
 document.addEventListener('DOMContentLoaded', async () => {
-    questions = await loadQuestionsFromCSV();
+    allQuestions = await loadQuestionsFromCSV();
+    populateEraSelect();
+    questions = [...allQuestions];
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
     updateCounters();
 });
 
-// 現在の問題を表示
+// 時代ドロップダウン作成
+function populateEraSelect() {
+    const select = document.getElementById('era-select');
+    const eras = [...new Set(allQuestions.map(q => q.era))];
+    eras.forEach(era => {
+        const option = document.createElement('option');
+        option.value = era;
+        option.textContent = era;
+        select.appendChild(option);
+    });
+}
+
+// 選んだ時代でフィルター
+function filterByEra() {
+    const selectedEra = document.getElementById('era-select').value;
+    if (selectedEra === 'all') questions = [...allQuestions];
+    else questions = allQuestions.filter(q => q.era === selectedEra);
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    answeredCount = 0;
+    document.getElementById('total-questions').textContent = questions.length;
+    displayCurrentQuestion();
+    updateCounters();
+}
+
+// 現在の問題表示
 function displayCurrentQuestion() {
+    if(questions.length === 0){
+        document.getElementById('question-text').textContent = 'この時代の問題はありません。';
+        document.getElementById('submit-btn').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+        return;
+    }
     const questionElement = document.getElementById('question-text');
     const currentQuestion = questions[currentQuestionIndex];
-    questionElement.textContent = currentQuestion.question;
+    questionElement.textContent = `[${currentQuestion.era}] ${currentQuestion.question}`;
     
     document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
-    
     document.getElementById('submit-btn').style.display = 'inline-block';
     document.getElementById('next-btn').style.display = 'none';
     document.getElementById('result').style.display = 'none';
@@ -91,12 +136,12 @@ function displayCurrentQuestion() {
 
 // カウンター更新
 function updateCounters() {
-    document.getElementById('current-question-num').textContent = currentQuestionIndex + 1;
+    document.getElementById('current-question-num').textContent = questions.length === 0 ? 0 : currentQuestionIndex + 1;
     document.getElementById('correct-count').textContent = correctCount;
     document.getElementById('answered-count').textContent = answeredCount;
 }
 
-// 回答送信（AI採点）
+// 回答送信
 async function submitAnswer() {
     const userAnswer = document.getElementById('user-answer').value.trim();
     const currentQuestion = questions[currentQuestionIndex];
