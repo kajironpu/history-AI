@@ -98,10 +98,7 @@ async function loadQuestionsFromCSV() {
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await loadQuestionsFromCSV();
-    
-    // 全問題をランダムにシャッフル
-    allQuestions = shuffle(allQuestions);
-
+    allQuestions = shuffle(allQuestions); // 全問題ランダム順
     populateEraSelect();
     questions = [...allQuestions];
     document.getElementById('total-questions').textContent = questions.length;
@@ -121,16 +118,14 @@ function populateEraSelect() {
     });
 }
 
-// 選んだ時代でフィルター（かつランダム順）
+// 選んだ時代でフィルター（ランダム順）
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
     if (selectedEra === 'all') questions = [...allQuestions];
     else questions = allQuestions.filter(q => q.era === selectedEra);
 
     questions = shuffle(questions); // ランダム順に
-
     currentQuestionIndex = 0;
-    // 正解数・回答数は累積のまま
     document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
     updateCounters();
@@ -162,38 +157,37 @@ function updateCounters() {
     document.getElementById('answered-count').textContent = answeredCount;
 }
 
-// 回答送信
-async function submitAnswer() {
+// 回答送信（丸括弧・空白・全角半角・大小文字を無視）
+function submitAnswer() {
     const userAnswer = document.getElementById('user-answer').value.trim();
     const currentQuestion = questions[currentQuestionIndex];
     const submitBtn = document.getElementById('submit-btn');
     const resultDiv = document.getElementById('result');
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'AI採点中<span class="loading"></span>';
+    submitBtn.innerHTML = '採点中<span class="loading"></span>';
 
     try {
-        const response = await fetch('/api/grade-ai', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ userAnswer, currentQuestion })
-        });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-        if (result.error) throw new Error(result.error);
+        // 正規化関数
+        const normalize = str => str
+            .replace(/[（）\s]/g, '')   // 丸括弧・空白削除
+            .normalize('NFKC')          // 全角→半角変換
+            .toLowerCase();             // 小文字化
 
-        resultDiv.innerHTML = result.advice;
+        const isCorrect = normalize(userAnswer) === normalize(currentQuestion.answer);
+
+        resultDiv.innerHTML = isCorrect 
+            ? '✔ 正解です！' 
+            : `❌ 不正解です。あなたの回答は「${userAnswer}」でした。正しい答えは「${currentQuestion.answer}」です。`;
+        resultDiv.className = 'result ' + (isCorrect ? 'correct' : 'incorrect');
         resultDiv.style.display = 'block';
 
-        const isCorrect = result.advice.includes('✔') || result.advice.includes('正解');
-        resultDiv.className = 'result ' + (isCorrect ? 'correct' : 'incorrect');
         if (isCorrect) correctCount++;
         answeredCount++;
         updateCounters();
 
         submitBtn.style.display = 'none';
         document.getElementById('next-btn').style.display = 'inline-block';
-
     } catch(error) {
         console.error(error);
         resultDiv.innerHTML = `エラーが発生しました: ${error.message}`;
