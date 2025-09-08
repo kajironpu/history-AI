@@ -59,6 +59,7 @@ let questions = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
 let answeredCount = 0;
+let eraOrder = []; // CSV順の時代順序を保存
 
 // 配列ランダム化
 function shuffle(array) {
@@ -80,7 +81,7 @@ async function loadQuestionsFromCSV() {
     const questionIndex = headers.indexOf('問題');
     const answerIndex = headers.indexOf('答え');
 
-    return lines.slice(1)
+    const questions = lines.slice(1)
         .map(line => line.split(',').map(c => c.trim()))
         .filter(cols => cols.length > Math.max(eraIndex, questionIndex, answerIndex))
         .map(cols => ({
@@ -88,6 +89,16 @@ async function loadQuestionsFromCSV() {
             question: cols[questionIndex],
             answer: cols[answerIndex]
         }));
+
+    // CSV順の時代順序を保存
+    eraOrder = [];
+    questions.forEach(q => {
+        if (!eraOrder.includes(q.era)) {
+            eraOrder.push(q.era);
+        }
+    });
+
+    return questions;
 }
 
 // ページ読み込み
@@ -101,11 +112,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCounters();
 });
 
-// 時代選択肢生成
+// 時代選択肢生成（CSV順）
 function populateEraSelect() {
     const select = document.getElementById('era-select');
-    const eras = [...new Set(allQuestions.map(q => q.era))];
-    eras.forEach(era => {
+    // eraOrderに従って選択肢を追加
+    eraOrder.forEach(era => {
         const option = document.createElement('option');
         option.value = era;
         option.textContent = era;
