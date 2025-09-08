@@ -50,8 +50,8 @@ export default async function handler(req, res) {
 - 回答が空欄でも、問題の答えと解説をしてください。
 
 ## 採点対象
+- 正しい答え: ${currentQuestion.answer}
 - あなたの回答: ${userAnswer}
-- 期待される正答: ${currentQuestion.answer}
 - 問題文: ${currentQuestion.question}
 ---
 `;
