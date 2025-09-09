@@ -29,18 +29,13 @@ h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
 <body>
 <div class="container">
     <h1>🏛️ 歴史クイズAI</h1>
-
-    <!-- 時代選択 -->
+    
     <select id="era-select" onchange="filterByEra()">
         <option value="all">全ての時代</option>
     </select>
-
-    <div class="question-counter">
-        <span id="current-question-num">1</span> / <span id="total-questions">0</span>
-    </div>
     
     <div class="score">
-        正解数: <span id="correct-count">0</span> / <span id="answered-count">0</span>
+        正解率: <span id="accuracy-rate">0%</span>
     </div>
 
     <div class="quiz-section">
@@ -155,9 +150,8 @@ function displayCurrentQuestion() {
 
 // カウンター更新
 function updateCounters() {
-    document.getElementById('current-question-num').textContent = questions.length === 0 ? 0 : currentQuestionIndex + 1;
-    document.getElementById('correct-count').textContent = correctCount;
-    document.getElementById('answered-count').textContent = answeredCount;
+    const accuracy = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
+    document.getElementById('accuracy-rate').textContent = `${accuracy}% (${correctCount}/${answeredCount})`;
 }
 
 // 回答送信（あいまい判定＋AI解説）
@@ -238,7 +232,7 @@ function nextQuestion() {
 // 最終結果
 function showFinalResult() {
     const container = document.querySelector('.container');
-    const percentage = Math.round((correctCount / answeredCount) * 100);
+    const percentage = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
     
     container.innerHTML = `
         <h1>🎉 クイズ完了！</h1>
