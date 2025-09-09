@@ -33,11 +33,14 @@ export default async function handler(req, res) {
         }
 
         // Azure AI Inferenceクライアントの初期化
+        // Phi-4は通常、Azure AI Studioのデプロイメント名を使用します
         const client = ModelClient(
             "https://models.inference.ai.azure.com",
             new AzureKeyCredential(token)
         );
-        const modelName = "phi-4";
+        // Phi-4のモデル名に置き換える
+        // (実際のデプロイ名に合わせて変更してください)
+        const modelName = "phi-4"; 
 
         const systemMessage = `
             あなたは歴史の先生です。中学生が相手なので、難しい言葉は使わず、身近な例や比喩を交えて説明してください。専門用語は必ず平易な言葉に言い換えてください。親しみやすい口調で話してください。
@@ -54,30 +57,30 @@ export default async function handler(req, res) {
             
             1. 生徒の回答が正解の場合
             
-            【採点結果】  
-            ⭕️ 正解です！  
+            【採点結果】  
+            ⭕️ 正解です！  
             
-            【解説】  
-            {用語の意味と背景を、中学生にもわかりやすく説明してください}  
+            【解説】  
+            {用語の意味と背景を、中学生にもわかりやすく説明してください}  
             
             ---
             
             2. 生徒の回答が不正解（または空欄）の場合
             
-            【採点結果】  
-            ❌ 不正解です。  
-            ⭕️ 正解は {正解の用語} です。  
+            【採点結果】  
+            ❌ 不正解です。  
+            ⭕️ 正解は {正解の用語} です。  
             
-            【解説】  
-            {なぜ不正解かを一言で説明し、正しい用語とその背景をわかりやすく説明してください}  
+            【解説】  
+            {なぜ不正解かを一言で説明し、正しい用語とその背景をわかりやすく説明してください}  
             
             ---
         `;
 
         const userMessage = `
-            【採点に必要な情報】  
-            - 問題文: ${currentQuestion.question}  
-            - 正しい答え: ${currentQuestion.answer}  
+            【採点に必要な情報】  
+            - 問題文: ${currentQuestion.question}  
+            - 正しい答え: ${currentQuestion.answer}  
             - 生徒の回答: ${userAnswer}
         `;
         
@@ -94,22 +97,11 @@ export default async function handler(req, res) {
         });
 
         if (isUnexpected(response)) {
-            // エラーの場合もヘッダー情報をログに出す
             console.error("APIエラー:", response.body.error);
-            console.error("エラーレスポンスヘッダー:", response.headers);
             return res.status(response.status).json({ 
                 error: `AI API Error: ${response.body.error?.message || 'Unknown error'}` 
             });
         }
-        
-        // ★ ここから追加部分 ★
-        // レスポンスヘッダーからレート制限情報を取得
-        const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
-        const rateLimitLimit = response.headers['x-ratelimit-limit'];
-        const rateLimitUsed = rateLimitLimit - rateLimitRemaining;
-
-        console.log(`API利用状況: ${rateLimitUsed} / ${rateLimitLimit} (残り${rateLimitRemaining}回)`);
-        // ★ ここまで追加部分 ★
 
         const outputText = response.body.choices[0]?.message?.content || "AI応答を取得できませんでした";
         res.json({ advice: outputText });
