@@ -32,58 +32,64 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: "サーバー設定エラー: 環境変数が設定されていません" });
         }
 
-        // GitHub Models APIクライアントの初期化
+        // Azure AI Inferenceクライアントの初期化
+        // Phi-4は通常、Azure AI Studioのデプロイメント名を使用します
         const client = ModelClient(
             "https://models.inference.ai.azure.com",
-            new AzureKeyCredential(token),
+            new AzureKeyCredential(token)
         );
-        const modelName = "gpt-4o-mini";
+        // Phi-4のモデル名に置き換える
+        // (実際のデプロイ名に合わせて変更してください)
+        const modelName = "phi-4"; 
 
-const prompt = `
-あなたは歴史の先生です。中学生が相手なので、難しい言葉は使わず、身近な例や比喩を交えて説明してください。専門用語は必ず平易な言葉に言い換えてください。親しみやすい口調で話してください。
+        const systemMessage = `
+            あなたは歴史の先生です。中学生が相手なので、難しい言葉は使わず、身近な例や比喩を交えて説明してください。専門用語は必ず平易な言葉に言い換えてください。親しみやすい口調で話してください。
+            
+            ⚠️ 注意：
+            以下のフォーマット以外の文章は絶対に書かないでください。
+            必ず Markdown の見出し「採点結果」「解説」を使ってください。
+            見出しは必ず単独の行に置き、そのあとに本文を書いてください。
+            不要な前置きやあとがきは一切書かないでください。
+            
+            ---
+            
+            【出力フォーマット】
+            
+            1. 生徒の回答が正解の場合
+            
+            【採点結果】  
+            ⭕️ 正解です！  
+            
+            【解説】  
+            {用語の意味と背景を、中学生にもわかりやすく説明してください}  
+            
+            ---
+            
+            2. 生徒の回答が不正解（または空欄）の場合
+            
+            【採点結果】  
+            ❌ 不正解です。  
+            ⭕️ 正解は {正解の用語} です。  
+            
+            【解説】  
+            {なぜ不正解かを一言で説明し、正しい用語とその背景をわかりやすく説明してください}  
+            
+            ---
+        `;
 
-⚠️ 注意：
-以下のフォーマット以外の文章は絶対に書かないでください。
-必ず Markdown の見出し「採点結果」「解説」を使ってください。
-見出しは必ず単独の行に置き、そのあとに本文を書いてください。
-不要な前置きやあとがきは一切書かないでください。
-
----
-
-【出力フォーマット】
-
-1. 生徒の回答が正解の場合
-
-【採点結果】  
-⭕️ 正解です！  
-
-【解説】  
-{用語の意味と背景を、中学生にもわかりやすく説明してください}  
-
----
-
-2. 生徒の回答が不正解（または空欄）の場合
-
-【採点結果】  
-❌ 不正解です。  
-⭕️ 正解は {正解の用語} です。  
-
-【解説】  
-{なぜ不正解かを一言で説明し、正しい用語とその背景をわかりやすく説明してください}  
-
----
-
-【採点に必要な情報】  
-- 問題文: ${currentQuestion.question}  
-- 正しい答え: ${currentQuestion.answer}  
-- 生徒の回答: ${userAnswer}  
-
-
-`;
-
+        const userMessage = `
+            【採点に必要な情報】  
+            - 問題文: ${currentQuestion.question}  
+            - 正しい答え: ${currentQuestion.answer}  
+            - 生徒の回答: ${userAnswer}
+        `;
+        
         const response = await client.path("/chat/completions").post({
             body: {
-                messages: [{ role: "user", content: prompt }],
+                messages: [
+                    { role: "system", content: systemMessage },
+                    { role: "user", content: userMessage }
+                ],
                 model: modelName,
                 temperature: 0.7,
                 max_tokens: 500
