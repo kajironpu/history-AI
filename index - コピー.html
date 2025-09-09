@@ -5,227 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>歴史クイズAI</title>
 <style>
-/* 全体的なスタイル */
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:20px;
-    color: #333;
-}
-
-/* コンテナ */
-.container {
-    background:white;
-    border-radius:20px;
-    box-shadow:0 20px 40px rgba(0,0,0,0.1);
-    padding:40px;
-    max-width:800px;
-    width:100%;
-    text-align:center;
-    position:relative;
-}
-
-/* ヘッダー */
-h1 {
-    color:#333;
-    margin-bottom:20px;
-    font-size:2.5rem;
-    line-height:1.3;
-}
-
-/* 時代表示・選択・正解率 */
-.header-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-}
-#era-display {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #555;
-    font-weight: bold;
-}
-.score {
-    font-size:1.2rem;
-    color:#333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-#era-select {
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    margin-bottom: 15px;
-}
-
-/* クイズセクション */
-.quiz-section {
-    margin-top: 30px;
-    margin-bottom:30px;
-}
-.question {
-    font-size:1.3rem;
-    color:#555;
-    margin-bottom:20px;
-    padding:20px;
-    background:#f8f9fa;
-    border-radius:10px;
-    border-left:5px solid #667eea;
-    word-wrap: break-word; 
-    line-height:1.5;
-}
-.answer-input {
-    width:100%;
-    padding:16px;
-    font-size:1.2rem;
-    border:2px solid #ddd;
-    border-radius:10px;
-    margin-bottom:20px;
-    transition:border-color 0.3s;
-}
-.answer-input:focus {
-    outline:none;
-    border-color:#667eea;
-}
-
-/* ボタン */
-.btn-group {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-.btn {
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    color:white;
-    border:none;
-    padding:16px 32px;
-    font-size:1.2rem;
-    border-radius:25px;
-    cursor:pointer;
-    transition:transform 0.3s, box-shadow 0.3s;
-}
-.btn:hover {
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px rgba(0,0,0,0.2);
-}
-.btn:disabled {
-    opacity:0.6;
-    cursor:not-allowed;
-    transform:none;
-}
-
-/* 結果表示 */
-.result {
-    margin-top:30px;
-    padding:20px;
-    border-radius:10px;
-    text-align:left;
-    line-height:1.6;
-    display:none;
-}
-.result.correct {
-    background:#d4edda;
-    border:1px solid #c3e6cb;
-    color:#155724;
-}
-.result.incorrect {
-    background:#f8d7da;
-    border:1px solid #f5c6cb;
-    color:#721c24;
-}
-
-/* ローディングスピナー */
-.loading {
-    display:inline-block;
-    width:20px;
-    height:20px;
-    border:3px solid #f3f3f3;
-    border-top:3px solid #667eea;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-    margin-left:10px;
-}
-@keyframes spin {
-    0% { transform:rotate(0deg); }
-    100% { transform:rotate(360deg); }
-}
-
-/* 最終結果画面 */
-.final-result h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
-.final-result .score {
-    font-size: 2.5rem;
-    margin: 30px 0;
-}
-.final-result .message {
-    font-size: 1.4rem;
-    margin: 20px 0;
-}
-
-/* メディアクエリでスマホ対応 */
-@media (max-width: 600px) {
-    .container {
-        padding: 25px;
-        border-radius: 15px;
-    }
-    h1 {
-        font-size: 2rem;
-    }
-    #era-display {
-        font-size: 1.2rem;
-    }
-    .score {
-        flex-direction: column;
-        gap: 6px;
-        font-size:1rem;
-    }
-    .question {
-        font-size: 1.1rem;
-        padding: 15px;
-    }
-    .answer-input, .btn {
-        font-size: 1rem;
-        padding: 14px 24px;
-    }
-}
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+.container { background:white; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.1); padding:40px; max-width:800px; width:100%; text-align:center; position:relative; }
+h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
+.quiz-section { margin-bottom:30px; }
+.question { font-size:1.3em; color:#555; margin-bottom:20px; padding:20px; background:#f8f9fa; border-radius:10px; border-left:5px solid #667eea; }
+.answer-input { width:100%; padding:15px; font-size:1.1em; border:2px solid #ddd; border-radius:10px; margin-bottom:20px; transition:border-color 0.3s; }
+.answer-input:focus { outline:none; border-color:#667eea; }
+.btn { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:15px 30px; font-size:1.1em; border-radius:25px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; margin:10px; }
+.btn:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,0.2); }
+.btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.result { margin-top:30px; padding:20px; border-radius:10px; text-align:left; line-height:1.6; display:none; }
+.result.correct { background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
+.result.incorrect { background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
+.score { font-size:1.2em; margin-bottom:20px; color:#333; }
+.loading { display:inline-block; width:20px; height:20px; border:3px solid #f3f3f3; border-top:3px solid #667eea; border-radius:50%; animation:spin 1s linear infinite; margin-left:10px; }
+@keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+#era-select { position:absolute; top:20px; right:20px; padding:8px 12px; border-radius:10px; border:1px solid #ddd; font-size:1em; }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>🏛️ 歴史クイズAI</h1>
 
-    <div class="header-info">
-        <div id="era-display">時代を読み込み中...</div>
-        <select id="era-select" onchange="filterByEra()">
-            <option value="all">全ての時代</option>
-        </select>
-    </div>
+    <div id="era-display" style="font-size: 1.5em; margin-bottom: 20px; color: #555;">時代を読み込み中...</div>
+
+    <select id="era-select" onchange="filterByEra()">
+        <option value="all">全ての時代</option>
+    </select>
     
     <div class="score">
         正解率: <span id="accuracy-rate">0% (0/0)</span>
-        <span id="remaining-questions"></span>
+        <span id="remaining-questions" style="margin-left: 15px;"></span>
     </div>
 
     <div class="quiz-section">
         <div class="question" id="question-text">問題を読み込み中...</div>
         <input type="text" id="user-answer" class="answer-input" placeholder="答えを入力してください" />
-        <div class="btn-group">
-            <button id="submit-btn" class="btn" onclick="submitAnswer()">回答する</button>
-            <button id="next-btn" class="btn" onclick="nextQuestion()" style="display:none;">次の問題</button>
-        </div>
+        <button id="submit-btn" class="btn" onclick="submitAnswer()">回答する</button>
+        <button id="next-btn" class="btn" onclick="nextQuestion()" style="display:none;">次の問題</button>
     </div>
 
     <div id="result" class="result"></div>
@@ -237,8 +56,9 @@ let questions = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
 let answeredCount = 0;
-let eraOrder = [];
+let eraOrder = []; // CSV順の時代順序を保存
 
+// 配列ランダム化
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -247,6 +67,7 @@ function shuffle(array) {
     return array;
 }
 
+// CSV読み込み
 async function loadQuestionsFromCSV() {
     const response = await fetch('questions.csv');
     let text = await response.text();
@@ -266,15 +87,18 @@ async function loadQuestionsFromCSV() {
             answer: cols[answerIndex]
         }));
 
+    // CSV順の時代順序を保存
     eraOrder = [];
     questions.forEach(q => {
         if (!eraOrder.includes(q.era)) {
             eraOrder.push(q.era);
         }
     });
+
     return questions;
 }
 
+// ページ読み込み
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await loadQuestionsFromCSV();
     allQuestions = shuffle(allQuestions);
@@ -284,8 +108,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCounters();
 });
 
+// 時代選択肢生成（CSV順）
 function populateEraSelect() {
     const select = document.getElementById('era-select');
+    // eraOrderに従って選択肢を追加
     eraOrder.forEach(era => {
         const option = document.createElement('option');
         option.value = era;
@@ -294,6 +120,7 @@ function populateEraSelect() {
     });
 }
 
+// 時代フィルター
 function filterByEra() {
     const selectedEra = document.getElementById('era-select').value;
     if (selectedEra === 'all') questions = [...allQuestions];
@@ -307,6 +134,7 @@ function filterByEra() {
     updateCounters();
 }
 
+// 現在の問題表示
 function displayCurrentQuestion() {
     if(questions.length === 0){
         document.getElementById('question-text').textContent = 'この時代の問題はありません。';
@@ -324,6 +152,7 @@ function displayCurrentQuestion() {
     document.getElementById('result').style.display = 'none';
 }
 
+// カウンター更新
 function updateCounters() {
     const accuracy = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
     const remaining = questions.length - (currentQuestionIndex + 1);
@@ -332,6 +161,7 @@ function updateCounters() {
     document.getElementById('remaining-questions').textContent = `残り${remaining}問`;
 }
 
+// 回答送信（あいまい判定＋AI解説）
 async function submitAnswer() {
     const userAnswer = document.getElementById('user-answer').value.trim();
     const currentQuestion = questions[currentQuestionIndex];
@@ -346,6 +176,7 @@ async function submitAnswer() {
         const userNorm = normalize(userAnswer);
         const answerNorm = normalize(currentQuestion.answer);
         
+        // より柔軟な判定：部分一致、完全一致、逆方向の部分一致を確認
         const isExactMatch = userNorm === answerNorm;
         const isPartialMatch = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
         const isSubstantialMatch = userNorm.length >= 2 && (answerNorm.includes(userNorm) || userNorm.includes(answerNorm));
@@ -353,6 +184,7 @@ async function submitAnswer() {
         const isPartialCorrect = isExactMatch || (isPartialMatch && isSubstantialMatch);
 
         let advice = '';
+        // 正解・不正解に関わらずAI採点APIに送信
         const response = await fetch('/api/grade-ai', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
@@ -393,6 +225,7 @@ async function submitAnswer() {
     }
 }
 
+// 次の問題
 function nextQuestion() {
     currentQuestionIndex++;
     if(currentQuestionIndex >= questions.length){
@@ -403,26 +236,26 @@ function nextQuestion() {
     }
 }
 
+// 最終結果
 function showFinalResult() {
     const container = document.querySelector('.container');
     const percentage = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
     
     container.innerHTML = `
-        <div class="final-result">
-            <h1>🎉 クイズ完了！</h1>
-            <div class="score">
-                正解数: ${correctCount} / ${answeredCount} (${percentage}%)
-            </div>
-            <div class="message">
-                ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
-                  percentage >= 60 ? 'よくできました！📚' : 
-                  '復習して再挑戦してみましょう！💪'}
-            </div>
-            <button class="btn" onclick="location.reload()">もう一度挑戦</button>
+        <h1>🎉 クイズ完了！</h1>
+        <div class="score" style="font-size:2em; margin:30px 0;">
+            正解数: ${correctCount} / ${answeredCount} (${percentage}%)
         </div>
+        <div style="font-size:1.2em; margin:20px 0;">
+            ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
+              percentage >= 60 ? 'よくできました！📚' : 
+              '復習して再挑戦してみましょう！💪'}
+        </div>
+        <button class="btn" onclick="location.reload()">もう一度挑戦</button>
     `;
 }
 
+// Enterキーで送信
 document.getElementById('user-answer').addEventListener('keypress', e=>{
     if(e.key==='Enter'){
         if(document.getElementById('submit-btn').style.display!=='none') submitAnswer();
