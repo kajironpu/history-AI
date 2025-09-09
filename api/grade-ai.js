@@ -14,16 +14,19 @@ export default async function handler(req, res) {
 
     // POSTメソッドのみ許可
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        // 文字列としてエラーを返す
+        return res.status(405).send('Method not allowed');
     }
 
     try {
         const { userAnswer, currentQuestion } = req.body;
 
         if (!userAnswer || !currentQuestion) {
-            return res.status(400).json({ error: 'Invalid request body' });
+            // 文字列としてエラーを返す
+            return res.status(400).send('Invalid request body');
         }
 
+<<<<<<< HEAD
         // Gemini APIキーを環境変数から取得
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -36,6 +39,18 @@ export default async function handler(req, res) {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         // システムメッセージとユーザーメッセージを結合してプロンプトを作成
+=======
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.error("エラー: GEMINI_API_KEYが設定されていません。");
+            // 文字列としてエラーを返す
+            return res.status(500).send("サーバー設定エラー: 環境変数が設定されていません");
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
         const prompt = `
             あなたは歴史の先生です。中学生が相手なので、難しい言葉は使わず、身近な例や比喩を交えて説明してください。専門用語は必ず平易な言葉に言い換えてください。親しみやすい口調で話してください。
             
@@ -81,6 +96,7 @@ export default async function handler(req, res) {
         const outputText = response.text();
 
         if (!outputText) {
+<<<<<<< HEAD
             return res.status(500).json({ error: "AI応答を取得できませんでした" });
         }
 
@@ -92,5 +108,19 @@ export default async function handler(req, res) {
             error: `サーバーエラー: ${error.message}`,
             details: "AIサービスとの通信に失敗しました"
         });
+=======
+            // 文字列としてエラーを返す
+            return res.status(500).send("AI応答を取得できませんでした");
+        }
+
+        // ここが重要な変更点です
+        // JSONではなく、取得したテキストをそのままクライアントに返す
+        res.status(200).send(outputText);
+
+    } catch (error) {
+        console.error("サーバーでのAI採点エラー:", error);
+        // 文字列としてエラーを返す
+        res.status(500).send(`サーバーエラー: ${error.message}`);
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     }
 }

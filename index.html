@@ -14,6 +14,7 @@ body {
     display:flex;
     justify-content:center;
     align-items:flex-start;
+<<<<<<< HEAD
     padding:20px;
     color: #333;
 }
@@ -25,11 +26,25 @@ body {
     box-shadow:0 20px 40px rgba(0,0,0,0.1);
     padding:40px;
     max-width:800px;
+=======
+    padding:10px; /* 上下左右の余白を削減 */
+    color: #333;
+}
+
+/* コンテナ：スマホ向けにコンパクト化 */
+.container {
+    background:white;
+    border-radius:16px;
+    box-shadow:0 10px 20px rgba(0,0,0,0.1);
+    padding:20px; /* 上下左右のパディングを削減 */
+    max-width:100%; /* 800px → 100% */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     width:100%;
     text-align:center;
     position:relative;
 }
 
+<<<<<<< HEAD
 /* ヘッダー */
 h1 {
     color:#333;
@@ -39,25 +54,49 @@ h1 {
 }
 
 /* 時代表示・選択・正解率 */
+=======
+/* ヘッダー：フォントサイズ縮小 */
+h1 {
+    color:#333;
+    margin-bottom:12px;
+    font-size:1.8rem; /* 2.5rem → 1.8rem */
+    line-height:1.3;
+}
+
+/* 時代表示・選択・正解率：縦並びで省スペース */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
 .header-info {
     display: flex;
     flex-direction: column;
     align-items: center;
+<<<<<<< HEAD
     margin-bottom: 20px;
 }
 #era-display {
     font-size: 1.5rem;
     margin-bottom: 10px;
+=======
+    margin-bottom: 12px; /* 20px → 12px */
+}
+#era-display {
+    font-size: 1.2rem; /* 1.5rem → 1.2rem */
+    margin-bottom: 6px;
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     color: #555;
     font-weight: bold;
 }
 .score {
+<<<<<<< HEAD
     font-size:1.2rem;
+=======
+    font-size:1rem; /* 1.2rem → 1rem */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     color:#333;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+<<<<<<< HEAD
     gap: 10px;
 }
 #era-select {
@@ -81,16 +120,49 @@ h1 {
     background:#f8f9fa;
     border-radius:10px;
     border-left:5px solid #667eea;
+=======
+    gap: 6px; /* 10px → 6px */
+}
+#era-select {
+    padding: 8px 12px; /* 10px 14px → 8px 12px */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 0.95rem; /* 1rem → 0.95rem */
+    margin-bottom: 10px; /* 15px → 10px */
+}
+
+/* クイズセクション：余白削減 */
+.quiz-section {
+    margin-top: 15px; /* 30px → 15px */
+    margin-bottom:15px; /* 30px → 15px */
+}
+.question {
+    font-size:1.1rem; /* 1.3rem → 1.1rem */
+    color:#555;
+    margin-bottom:15px; /* 20px → 15px */
+    padding:15px; /* 20px → 15px */
+    background:#f8f9fa;
+    border-radius:8px; /* 10px → 8px */
+    border-left:4px solid #667eea; /* 5px → 4px */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     word-wrap: break-word; 
     line-height:1.5;
 }
 .answer-input {
     width:100%;
+<<<<<<< HEAD
     padding:16px;
     font-size:1.2rem;
     border:2px solid #ddd;
     border-radius:10px;
     margin-bottom:20px;
+=======
+    padding:12px; /* 16px → 12px */
+    font-size:1rem; /* 1.2rem → 1rem */
+    border:2px solid #ddd;
+    border-radius:8px; /* 10px → 8px */
+    margin-bottom:15px; /* 20px → 15px */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     transition:border-color 0.3s;
 }
 .answer-input:focus {
@@ -98,26 +170,45 @@ h1 {
     border-color:#667eea;
 }
 
+<<<<<<< HEAD
 /* ボタン */
+=======
+/* ボタン：サイズ縮小、余白調整 */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
 .btn-group {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+<<<<<<< HEAD
     gap: 12px;
+=======
+    gap: 8px; /* 12px → 8px */
+    margin-top: 10px;
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
 }
 .btn {
     background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
     color:white;
     border:none;
+<<<<<<< HEAD
     padding:16px 32px;
     font-size:1.2rem;
     border-radius:25px;
+=======
+    padding:12px 24px; /* 16px 32px → 12px 24px */
+    font-size:1rem; /* 1.2rem → 1rem */
+    border-radius:20px; /* 25px → 20px */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     cursor:pointer;
     transition:transform 0.3s, box-shadow 0.3s;
 }
 .btn:hover {
     transform:translateY(-2px);
+<<<<<<< HEAD
     box-shadow:0 10px 20px rgba(0,0,0,0.2);
+=======
+    box-shadow:0 8px 16px rgba(0,0,0,0.2);
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
 }
 .btn:disabled {
     opacity:0.6;
@@ -125,6 +216,7 @@ h1 {
     transform:none;
 }
 
+<<<<<<< HEAD
 /* 結果表示 */
 .result {
     margin-top:30px;
@@ -132,6 +224,16 @@ h1 {
     border-radius:10px;
     text-align:left;
     line-height:1.6;
+=======
+/* 結果表示：フォントサイズ縮小、余白削減 */
+.result {
+    margin-top:15px; /* 30px → 15px */
+    padding:15px; /* 20px → 15px */
+    border-radius:8px; /* 10px → 8px */
+    text-align:left;
+    line-height:1.5; /* 1.6 → 1.5 */
+    font-size: 0.95rem; /* 追加 */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     display:none;
 }
 .result.correct {
@@ -145,6 +247,7 @@ h1 {
     color:#721c24;
 }
 
+<<<<<<< HEAD
 /* ローディングスピナー */
 .loading {
     display:inline-block;
@@ -155,12 +258,25 @@ h1 {
     border-radius:50%;
     animation:spin 1s linear infinite;
     margin-left:10px;
+=======
+/* ローディングスピナー：サイズ縮小 */
+.loading {
+    display:inline-block;
+    width:16px; /* 20px → 16px */
+    height:16px; /* 20px → 16px */
+    border:2px solid #f3f3f3; /* 3px → 2px */
+    border-top:2px solid #667eea; /* 3px → 2px */
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin-left:6px; /* 10px → 6px */
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
 }
 @keyframes spin {
     0% { transform:rotate(0deg); }
     100% { transform:rotate(360deg); }
 }
 
+<<<<<<< HEAD
 /* 最終結果画面 */
 .final-result h1 {
     font-size: 3rem;
@@ -199,6 +315,62 @@ h1 {
     .answer-input, .btn {
         font-size: 1rem;
         padding: 14px 24px;
+=======
+/* 最終結果画面：スマホ向けにコンパクト化 */
+.final-result h1 {
+    font-size: 2rem; /* 3rem → 2rem */
+    margin-bottom: 15px; /* 20px → 15px */
+}
+.final-result .score {
+    font-size: 1.8rem; /* 2.5rem → 1.8rem */
+    margin: 20px 0; /* 30px → 20px */
+}
+.final-result .message {
+    font-size: 1.1rem; /* 1.4rem → 1.1rem */
+    margin: 15px 0; /* 20px → 15px */
+    line-height: 1.4;
+}
+
+/* メディアクエリでスマホ対応（さらに最適化） */
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    .container {
+        padding: 15px;
+        border-radius: 12px;
+    }
+    h1 {
+        font-size: 1.6rem;
+    }
+    #era-display {
+        font-size: 1.1rem;
+    }
+    .score {
+        gap: 4px;
+        font-size: 0.9rem;
+    }
+    .question {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    .answer-input, .btn {
+        font-size: 0.95rem;
+        padding: 10px 20px;
+    }
+    .result {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+    .final-result h1 {
+        font-size: 1.8rem;
+    }
+    .final-result .score {
+        font-size: 1.6rem;
+    }
+    .final-result .message {
+        font-size: 1rem;
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
     }
 }
 </style>
@@ -221,10 +393,17 @@ h1 {
 
     <div class="quiz-section">
         <div class="question" id="question-text">問題を読み込み中...</div>
+<<<<<<< HEAD
         <input type="text" id="user-answer" class="answer-input" placeholder="答えを入力してください" />
         <div class="btn-group">
             <button id="submit-btn" class="btn" onclick="submitAnswer()">回答する</button>
             <button id="next-btn" class="btn" onclick="nextQuestion()" style="display:none;">次の問題</button>
+=======
+        <input type="text" id="user-answer" class="answer-input" placeholder="答えを入力" />
+        <div class="btn-group">
+            <button id="submit-btn" class="btn" onclick="submitAnswer()">回答</button>
+            <button id="next-btn" class="btn" onclick="nextQuestion()" style="display:none;">次へ</button>
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
         </div>
     </div>
 
@@ -369,7 +548,7 @@ async function submitAnswer() {
         if(isPartialCorrect){
             advice = result.advice || '✔ 正解です！';
         } else {
-            advice = result.advice || `❌ 不正解です。正しい答え: ${currentQuestion.answer}`;
+            advice = result.advice || `❌ 不正解です。正解: ${currentQuestion.answer}`;
         }
 
         resultDiv.innerHTML = advice;
@@ -384,12 +563,12 @@ async function submitAnswer() {
         document.getElementById('next-btn').style.display = 'inline-block';
     } catch(e){
         console.error(e);
-        resultDiv.innerHTML = `エラーが発生しました: ${e.message}`;
+        resultDiv.innerHTML = `エラー: ${e.message}`;
         resultDiv.className = 'result incorrect';
         resultDiv.style.display = 'block';
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '回答する';
+        submitBtn.innerHTML = '回答';
     }
 }
 
@@ -409,6 +588,7 @@ function showFinalResult() {
     
     container.innerHTML = `
         <div class="final-result">
+<<<<<<< HEAD
             <h1>🎉 クイズ完了！</h1>
             <div class="score">
                 正解数: ${correctCount} / ${answeredCount} (${percentage}%)
@@ -419,6 +599,18 @@ function showFinalResult() {
                   '復習して再挑戦してみましょう！💪'}
             </div>
             <button class="btn" onclick="location.reload()">もう一度挑戦</button>
+=======
+            <h1>🎉 完了！</h1>
+            <div class="score">
+                ${correctCount}/${answeredCount}問正解 (${percentage}%)
+            </div>
+            <div class="message">
+                ${percentage >= 80 ? '歴史博士！🏆' : 
+                  percentage >= 60 ? 'よくできました📚' : 
+                  '復習して再挑戦💪'}
+            </div>
+            <button class="btn" onclick="location.reload()">再挑戦</button>
+>>>>>>> cdae84db98d3c02a1dbb3e4d36189fe39d45dab8
         </div>
     `;
 }
