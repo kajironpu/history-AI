@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>歴史クイズAI</title>
 <style>
-/* 全体的なスタイル */
+/* 全体 */
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,193 +13,147 @@ body {
     min-height:100vh;
     display:flex;
     justify-content:center;
-    align-items:flex-start;
-    padding:20px;
-    color: #333;
+    align-items:center;
+    padding:0;
+    color:#333;
 }
 
 /* コンテナ */
 .container {
     background:white;
-    border-radius:20px;
-    box-shadow:0 20px 40px rgba(0,0,0,0.1);
-    padding:40px;
-    max-width:800px;
-    width:100%;
-    text-align:center;
-    position:relative;
+    border-radius:15px;
+    box-shadow:0 10px 20px rgba(0,0,0,0.1);
+    width:95%;
+    max-width:500px;
+    height:95vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:15px;
 }
 
 /* ヘッダー */
 h1 {
-    color:#333;
-    margin-bottom:20px;
-    font-size:2.5rem;
-    line-height:1.3;
+    font-size:1.8rem;
+    text-align:center;
+    margin-bottom:5px;
 }
-
-/* 時代表示・選択・正解率 */
 .header-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:5px;
 }
 #era-display {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #555;
-    font-weight: bold;
-}
-.score {
     font-size:1.2rem;
-    color:#333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    font-weight:bold;
+    margin-bottom:5px;
 }
 #era-select {
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    margin-bottom: 15px;
+    font-size:1rem;
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+/* スコア */
+.score {
+    font-size:1rem;
+    display:flex;
+    justify-content:space-between;
+    padding:0 10px;
+    margin-bottom:5px;
 }
 
 /* クイズセクション */
 .quiz-section {
-    margin-top: 30px;
-    margin-bottom:30px;
+    flex:1 1 auto; /* 余白を確保 */
+    display:flex;
+    flex-direction:column;
 }
 .question {
-    font-size:1.3rem;
-    color:#555;
-    margin-bottom:20px;
-    padding:20px;
+    flex:1 1 auto;
+    font-size:1.1rem;
+    padding:10px;
+    border-radius:8px;
+    border-left:4px solid #667eea;
     background:#f8f9fa;
-    border-radius:10px;
-    border-left:5px solid #667eea;
-    word-wrap: break-word; 
-    line-height:1.5;
+    overflow-y:auto; /* 長文は内部スクロール */
+    margin-bottom:10px;
 }
 .answer-input {
+    font-size:1rem;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
     width:100%;
-    padding:16px;
-    font-size:1.2rem;
-    border:2px solid #ddd;
-    border-radius:10px;
-    margin-bottom:20px;
-    transition:border-color 0.3s;
-}
-.answer-input:focus {
-    outline:none;
-    border-color:#667eea;
+    margin-bottom:10px;
 }
 
 /* ボタン */
 .btn-group {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:5px;
 }
 .btn {
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    flex:1;
+    font-size:1rem;
+    padding:10px 0;
+    border-radius:20px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
     color:white;
     border:none;
-    padding:16px 32px;
-    font-size:1.2rem;
-    border-radius:25px;
     cursor:pointer;
-    transition:transform 0.3s, box-shadow 0.3s;
 }
 .btn:hover {
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px rgba(0,0,0,0.2);
+    transform:translateY(-1px);
+    box-shadow:0 5px 10px rgba(0,0,0,0.2);
 }
 .btn:disabled {
     opacity:0.6;
     cursor:not-allowed;
-    transform:none;
 }
 
 /* 結果表示 */
 .result {
-    margin-top:30px;
-    padding:20px;
-    border-radius:10px;
-    text-align:left;
-    line-height:1.6;
+    font-size:0.95rem;
+    padding:8px;
+    border-radius:8px;
     display:none;
+    overflow-wrap:break-word;
 }
-.result.correct {
-    background:#d4edda;
-    border:1px solid #c3e6cb;
-    color:#155724;
-}
-.result.incorrect {
-    background:#f8d7da;
-    border:1px solid #f5c6cb;
-    color:#721c24;
-}
+.result.correct { background:#d4edda; color:#155724; border:1px solid #c3e6cb;}
+.result.incorrect { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;}
 
 /* ローディングスピナー */
 .loading {
     display:inline-block;
-    width:20px;
-    height:20px;
+    width:18px;
+    height:18px;
     border:3px solid #f3f3f3;
     border-top:3px solid #667eea;
     border-radius:50%;
     animation:spin 1s linear infinite;
-    margin-left:10px;
+    margin-left:5px;
 }
-@keyframes spin {
-    0% { transform:rotate(0deg); }
-    100% { transform:rotate(360deg); }
-}
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
-/* 最終結果画面 */
-.final-result h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
-.final-result .score {
-    font-size: 2.5rem;
-    margin: 30px 0;
-}
-.final-result .message {
-    font-size: 1.4rem;
-    margin: 20px 0;
-}
+/* 最終結果 */
+.final-result h1 { font-size:2rem; margin-bottom:10px; text-align:center; }
+.final-result .score { font-size:1.5rem; margin:10px 0; text-align:center; }
+.final-result .message { font-size:1rem; margin:10px 0; text-align:center; }
 
-/* メディアクエリでスマホ対応 */
-@media (max-width: 600px) {
-    .container {
-        padding: 25px;
-        border-radius: 15px;
-    }
-    h1 {
-        font-size: 2rem;
-    }
-    #era-display {
-        font-size: 1.2rem;
-    }
-    .score {
-        flex-direction: column;
-        gap: 6px;
-        font-size:1rem;
-    }
-    .question {
-        font-size: 1.1rem;
-        padding: 15px;
-    }
-    .answer-input, .btn {
-        font-size: 1rem;
-        padding: 14px 24px;
-    }
+/* スマホ微調整 */
+@media (max-width:480px) {
+    h1 { font-size:1.5rem; }
+    #era-display { font-size:1rem; }
+    .score { font-size:0.9rem; }
+    .question { font-size:1rem; }
+    .answer-input { font-size:0.95rem; }
+    .btn { font-size:0.95rem; }
 }
 </style>
 </head>
@@ -213,10 +167,10 @@ h1 {
             <option value="all">全ての時代</option>
         </select>
     </div>
-    
+
     <div class="score">
-        正解率: <span id="accuracy-rate">0% (0/0)</span>
-        <span id="remaining-questions"></span>
+        <span>正解率: <span id="accuracy-rate">0% (0/0)</span></span>
+        <span id="remaining-questions">残り0問</span>
     </div>
 
     <div class="quiz-section">
@@ -232,203 +186,129 @@ h1 {
 </div>
 
 <script>
-let allQuestions = [];
-let questions = [];
-let currentQuestionIndex = 0;
-let correctCount = 0;
-let answeredCount = 0;
-let eraOrder = [];
+let allQuestions=[], questions=[], currentQuestionIndex=0, correctCount=0, answeredCount=0, eraOrder=[];
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
+function shuffle(array){ for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()* (i+1));[array[i],array[j]]=[array[j],array[i]];} return array;}
 
-async function loadQuestionsFromCSV() {
-    const response = await fetch('questions.csv');
-    let text = await response.text();
-    text = text.replace(/^\uFEFF/, '');
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    const eraIndex = headers.indexOf('時代');
-    const questionIndex = headers.indexOf('問題');
-    const answerIndex = headers.indexOf('答え');
-
-    const questions = lines.slice(1)
-        .map(line => line.split(',').map(c => c.trim()))
-        .filter(cols => cols.length > Math.max(eraIndex, questionIndex, answerIndex))
-        .map(cols => ({
-            era: cols[eraIndex],
-            question: cols[questionIndex],
-            answer: cols[answerIndex]
-        }));
-
-    eraOrder = [];
-    questions.forEach(q => {
-        if (!eraOrder.includes(q.era)) {
-            eraOrder.push(q.era);
-        }
-    });
+async function loadQuestionsFromCSV(){
+    const response=await fetch('questions.csv');
+    let text=await response.text();
+    text=text.replace(/^\uFEFF/,'');
+    const lines=text.trim().split('\n');
+    const headers=lines[0].split(',').map(h=>h.trim());
+    const eraIndex=headers.indexOf('時代');
+    const questionIndex=headers.indexOf('問題');
+    const answerIndex=headers.indexOf('答え');
+    const questions=lines.slice(1).map(line=>line.split(',').map(c=>c.trim()))
+        .filter(cols=>cols.length>Math.max(eraIndex,questionIndex,answerIndex))
+        .map(cols=>({era:cols[eraIndex], question:cols[questionIndex], answer:cols[answerIndex]}));
+    eraOrder=[];
+    questions.forEach(q=>{if(!eraOrder.includes(q.era)) eraOrder.push(q.era);});
     return questions;
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    allQuestions = await loadQuestionsFromCSV();
-    allQuestions = shuffle(allQuestions);
+document.addEventListener('DOMContentLoaded', async()=>{
+    allQuestions=await loadQuestionsFromCSV();
+    allQuestions=shuffle(allQuestions);
     populateEraSelect();
-    questions = [...allQuestions];
+    questions=[...allQuestions];
     displayCurrentQuestion();
     updateCounters();
 });
 
-function populateEraSelect() {
-    const select = document.getElementById('era-select');
-    eraOrder.forEach(era => {
-        const option = document.createElement('option');
-        option.value = era;
-        option.textContent = era;
-        select.appendChild(option);
-    });
+function populateEraSelect(){
+    const select=document.getElementById('era-select');
+    eraOrder.forEach(era=>{const option=document.createElement('option'); option.value=era; option.textContent=era; select.appendChild(option);});
 }
 
-function filterByEra() {
-    const selectedEra = document.getElementById('era-select').value;
-    if (selectedEra === 'all') questions = [...allQuestions];
-    else questions = allQuestions.filter(q => q.era === selectedEra);
-    questions = shuffle(questions);
-    currentQuestionIndex = 0;
-    document.getElementById('era-display').textContent = (selectedEra === 'all' ? '全ての時代' : selectedEra);
+function filterByEra(){
+    const selectedEra=document.getElementById('era-select').value;
+    questions= selectedEra==='all'? [...allQuestions]: allQuestions.filter(q=>q.era===selectedEra);
+    questions=shuffle(questions);
+    currentQuestionIndex=0;
+    document.getElementById('era-display').textContent = selectedEra==='all'? '全ての時代': selectedEra;
     displayCurrentQuestion();
-    correctCount = 0;
-    answeredCount = 0;
-    updateCounters();
+    correctCount=0; answeredCount=0; updateCounters();
 }
 
-function displayCurrentQuestion() {
-    if(questions.length === 0){
-        document.getElementById('question-text').textContent = 'この時代の問題はありません。';
-        document.getElementById('submit-btn').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
+function displayCurrentQuestion(){
+    if(questions.length===0){
+        document.getElementById('question-text').textContent='この時代の問題はありません。';
+        document.getElementById('submit-btn').style.display='none';
+        document.getElementById('next-btn').style.display='none';
         return;
     }
-    const currentQuestion = questions[currentQuestionIndex];
-    document.getElementById('era-display').textContent = currentQuestion.era;
-    document.getElementById('question-text').textContent = currentQuestion.question;
-    document.getElementById('user-answer').value = '';
+    const currentQuestion=questions[currentQuestionIndex];
+    document.getElementById('era-display').textContent=currentQuestion.era;
+    document.getElementById('question-text').textContent=currentQuestion.question;
+    document.getElementById('user-answer').value='';
     document.getElementById('user-answer').focus();
-    document.getElementById('submit-btn').style.display = 'inline-block';
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('result').style.display = 'none';
+    document.getElementById('submit-btn').style.display='inline-block';
+    document.getElementById('next-btn').style.display='none';
+    document.getElementById('result').style.display='none';
 }
 
-function updateCounters() {
-    const accuracy = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
-    const remaining = questions.length - (currentQuestionIndex + 1);
-    
-    document.getElementById('accuracy-rate').textContent = `${accuracy}% (${correctCount}/${answeredCount})`;
-    document.getElementById('remaining-questions').textContent = `残り${remaining}問`;
+function updateCounters(){
+    const accuracy=answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+    const remaining=questions.length-(currentQuestionIndex+1);
+    document.getElementById('accuracy-rate').textContent=`${accuracy}% (${correctCount}/${answeredCount})`;
+    document.getElementById('remaining-questions').textContent=`残り${remaining}問`;
 }
 
-async function submitAnswer() {
-    const userAnswer = document.getElementById('user-answer').value.trim();
-    const currentQuestion = questions[currentQuestionIndex];
-    const submitBtn = document.getElementById('submit-btn');
-    const resultDiv = document.getElementById('result');
+async function submitAnswer(){
+    const userAnswer=document.getElementById('user-answer').value.trim();
+    const currentQuestion=questions[currentQuestionIndex];
+    const submitBtn=document.getElementById('submit-btn');
+    const resultDiv=document.getElementById('result');
+    submitBtn.disabled=true;
+    submitBtn.innerHTML='採点中<span class="loading"></span>';
+    try{
+        const normalize=str=>str.replace(/[（）()【】［］「」『』\s]/g,'').normalize('NFKC').toLowerCase();
+        const userNorm=normalize(userAnswer);
+        const answerNorm=normalize(currentQuestion.answer);
+        const isExactMatch=userNorm===answerNorm;
+        const isPartialMatch=answerNorm.includes(userNorm)||userNorm.includes(answerNorm);
+        const isSubstantialMatch=userNorm.length>=2&&(answerNorm.includes(userNorm)||userNorm.includes(answerNorm));
+        const isPartialCorrect=isExactMatch||(isPartialMatch&&isSubstantialMatch);
 
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '採点中<span class="loading"></span>';
-
-    try {
-        const normalize = str => str.replace(/[（）()【】［］「」『』\s]/g,'').normalize('NFKC').toLowerCase();
-        const userNorm = normalize(userAnswer);
-        const answerNorm = normalize(currentQuestion.answer);
-        
-        const isExactMatch = userNorm === answerNorm;
-        const isPartialMatch = answerNorm.includes(userNorm) || userNorm.includes(answerNorm);
-        const isSubstantialMatch = userNorm.length >= 2 && (answerNorm.includes(userNorm) || userNorm.includes(answerNorm));
-        
-        const isPartialCorrect = isExactMatch || (isPartialMatch && isSubstantialMatch);
-
-        let advice = '';
-        const response = await fetch('/api/grade-ai', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ 
-                userAnswer, 
-                currentQuestion,
-                isCorrect: isPartialCorrect,
-                normalizedUserAnswer: userNorm,
-                normalizedCorrectAnswer: answerNorm
-            })
+        let advice='';
+        const response=await fetch('/api/grade-ai',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({userAnswer,currentQuestion,isCorrect:isPartialCorrect,normalizedUserAnswer:userNorm,normalizedCorrectAnswer:answerNorm})
         });
-        const result = await response.json();
-        
-        if(isPartialCorrect){
-            advice = result.advice || '✔ 正解です！';
-        } else {
-            advice = result.advice || `❌ 不正解です。正しい答え: ${currentQuestion.answer}`;
-        }
-
-        resultDiv.innerHTML = advice;
-        resultDiv.className = 'result ' + (isPartialCorrect ? 'correct' : 'incorrect');
-        resultDiv.style.display = 'block';
-
+        const result=await response.json();
+        advice=isPartialCorrect? (result.advice||'✔ 正解です！') : (result.advice||`❌ 不正解です。正しい答え: ${currentQuestion.answer}`);
+        resultDiv.innerHTML=advice;
+        resultDiv.className='result '+(isPartialCorrect?'correct':'incorrect');
+        resultDiv.style.display='block';
         if(isPartialCorrect) correctCount++;
         answeredCount++;
         updateCounters();
-
-        submitBtn.style.display = 'none';
-        document.getElementById('next-btn').style.display = 'inline-block';
-    } catch(e){
+        submitBtn.style.display='none';
+        document.getElementById('next-btn').style.display='inline-block';
+    }catch(e){
         console.error(e);
-        resultDiv.innerHTML = `エラーが発生しました: ${e.message}`;
-        resultDiv.className = 'result incorrect';
-        resultDiv.style.display = 'block';
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '回答する';
+        resultDiv.innerHTML=`エラーが発生しました: ${e.message}`;
+        resultDiv.className='result incorrect';
+        resultDiv.style.display='block';
+    }finally{
+        submitBtn.disabled=false;
+        submitBtn.innerHTML='回答する';
     }
 }
 
-function nextQuestion() {
+function nextQuestion(){
     currentQuestionIndex++;
-    if(currentQuestionIndex >= questions.length){
-        showFinalResult();
-    } else {
-        displayCurrentQuestion();
-        updateCounters();
-    }
+    if(currentQuestionIndex>=questions.length){ showFinalResult(); } 
+    else{ displayCurrentQuestion(); updateCounters(); }
 }
 
-function showFinalResult() {
-    const container = document.querySelector('.container');
-    const percentage = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
-    
-    container.innerHTML = `
+function showFinalResult(){
+    const container=document.querySelector('.container');
+    const percentage=answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+    container.innerHTML=`
         <div class="final-result">
             <h1>🎉 クイズ完了！</h1>
-            <div class="score">
-                正解数: ${correctCount} / ${answeredCount} (${percentage}%)
-            </div>
-            <div class="message">
-                ${percentage >= 80 ? '素晴らしい！歴史博士ですね！🏆' : 
-                  percentage >= 60 ? 'よくできました！📚' : 
-                  '復習して再挑戦してみましょう！💪'}
-            </div>
-            <button class="btn" onclick="location.reload()">もう一度挑戦</button>
-        </div>
-    `;
-}
-
-document.getElementById('user-answer').addEventListener('keypress', e=>{
-    if(e.key==='Enter'){
-        if(document.getElementById('submit-btn').style.display!=='none') submitAnswer();
-        else if(document.getElementById('next-btn').style.display!=='none') nextQuestion();
-    }
-});
-</script>
-</body>
-</html>
+            <div class="score">正解数: ${correctCount}/${answeredCount} (${percentage}%)</div>
+            <div class="message">${percentage>=80?'素晴らしい！歴史博士ですね！🏆':percentage>=60?'よくできました！📚':'復習して再挑戦して
