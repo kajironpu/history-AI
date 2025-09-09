@@ -5,8 +5,8 @@
   "engines": {
     "node": "22.x"
   },
+  "type": "module",
   "dependencies": {
-    "@azure-rest/ai-inference": "1.0.0-beta.2",
     "@google/generative-ai": "^0.24.1"
   }
 }
