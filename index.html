@@ -29,6 +29,8 @@ h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
 <div class="container">
     <h1>🏛️ 歴史クイズAI</h1>
 
+    <div id="era-display" style="font-size: 1.5em; margin-bottom: 20px; color: #555;">時代を読み込み中...</div>
+
     <select id="era-select" onchange="filterByEra()">
         <option value="all">全ての時代</option>
     </select>
@@ -124,6 +126,7 @@ function filterByEra() {
     else questions = allQuestions.filter(q => q.era === selectedEra);
     questions = shuffle(questions);
     currentQuestionIndex = 0;
+    document.getElementById('era-display').textContent = (selectedEra === 'all' ? '全ての時代' : selectedEra);
     displayCurrentQuestion();
     correctCount = 0;
     answeredCount = 0;
@@ -139,7 +142,8 @@ function displayCurrentQuestion() {
         return;
     }
     const currentQuestion = questions[currentQuestionIndex];
-    document.getElementById('question-text').textContent = `[${currentQuestion.era}] ${currentQuestion.question}`;
+    document.getElementById('era-display').textContent = currentQuestion.era;
+    document.getElementById('question-text').textContent = currentQuestion.question;
     document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
     document.getElementById('submit-btn').style.display = 'inline-block';
