@@ -37,6 +37,7 @@ h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
     
     <div class="score">
         正解率: <span id="accuracy-rate">0% (0/0)</span>
+        <span id="remaining-questions" style="margin-left: 15px;"></span>
     </div>
 
     <div class="quiz-section">
@@ -154,7 +155,10 @@ function displayCurrentQuestion() {
 // カウンター更新
 function updateCounters() {
     const accuracy = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
+    const remaining = questions.length - (currentQuestionIndex + 1);
+    
     document.getElementById('accuracy-rate').textContent = `${accuracy}% (${correctCount}/${answeredCount})`;
+    document.getElementById('remaining-questions').textContent = `残り${remaining}問`;
 }
 
 // 回答送信（あいまい判定＋AI解説）
