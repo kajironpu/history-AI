@@ -22,20 +22,19 @@ h1 { color:#333; margin-bottom:30px; font-size:2.5em; }
 .score { font-size:1.2em; margin-bottom:20px; color:#333; }
 .loading { display:inline-block; width:20px; height:20px; border:3px solid #f3f3f3; border-top:3px solid #667eea; border-radius:50%; animation:spin 1s linear infinite; margin-left:10px; }
 @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-.question-counter { background:#667eea; color:white; padding:10px 20px; border-radius:20px; margin-bottom:20px; display:inline-block; }
 #era-select { position:absolute; top:20px; right:20px; padding:8px 12px; border-radius:10px; border:1px solid #ddd; font-size:1em; }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>🏛️ 歴史クイズAI</h1>
-    
+
     <select id="era-select" onchange="filterByEra()">
         <option value="all">全ての時代</option>
     </select>
     
     <div class="score">
-        正解率: <span id="accuracy-rate">0%</span>
+        正解率: <span id="accuracy-rate">0% (0/0)</span>
     </div>
 
     <div class="quiz-section">
@@ -102,7 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = shuffle(allQuestions);
     populateEraSelect();
     questions = [...allQuestions];
-    document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
     updateCounters();
 });
@@ -126,8 +124,9 @@ function filterByEra() {
     else questions = allQuestions.filter(q => q.era === selectedEra);
     questions = shuffle(questions);
     currentQuestionIndex = 0;
-    document.getElementById('total-questions').textContent = questions.length;
     displayCurrentQuestion();
+    correctCount = 0;
+    answeredCount = 0;
     updateCounters();
 }
 
