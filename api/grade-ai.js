@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             "https://models.inference.ai.azure.com",
             new AzureKeyCredential(token),
         );
-        const modelName = "microsoft/Phi-4";
+        const modelName = "gpt-4o-mini";
 
 const prompt = `
 あなたは歴史の先生です。中学生が相手なので、難しい言葉は使わず、身近な例や比喩を交えて説明してください。専門用語は必ず平易な言葉に言い換えてください。親しみやすい口調で話してください。
